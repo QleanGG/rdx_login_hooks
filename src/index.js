@@ -8,6 +8,7 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 import { Login } from './features/login/Login';
 import Products from './features/products/Products';
+import AdminComponent from './features/admin/Admin';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -19,6 +20,7 @@ root.render(
         <Routes>
           <Route path='/' element={<App />}>
             <Route index element={<Products />} />
+            <Route path='/admin' Component={AdminComponent} />
             <Route path='/login' element={<Login />} />
           </Route>
         </Routes>
