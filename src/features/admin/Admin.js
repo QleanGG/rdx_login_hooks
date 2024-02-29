@@ -1,8 +1,8 @@
 // AdminComponent.js
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadProdsAsync, prodsInfo } from "../products/productsSlicer";
-import {addProductAsync} from './adminSlice';
+import { addProductAsync, delProductAsync } from "./adminSlice";
 
 const AdminComponent = () => {
   const MY_SERVER = "http://127.0.0.1:8000";
@@ -11,23 +11,26 @@ const AdminComponent = () => {
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
 
-  //   const dispatch = useDispatch();
   const products = useSelector(prodsInfo);
 
   useEffect(() => {
     dispatch(loadProdsAsync());
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("desc",desc);
-    formData.append("price",price);
-    formData.append("image",image);
+    formData.append("desc", desc);
+    formData.append("price", price);
+    formData.append("image", image);
     dispatch(addProductAsync(formData));
     setDesc("");
     setPrice("");
     setImage(null);
+  };
+
+  const handleDelete =(id) => {
+    dispatch(delProductAsync(id));
   };
 
   return (
@@ -64,7 +67,7 @@ const AdminComponent = () => {
       <h2>Existing Products</h2>
       <ul>
         {products.map((product, index) => (
-          <li key={index}>
+          <li key={index} style={{ margin: "100px" }}>
             <div>id: {product.id}</div>
             <div>Title: {product.title}</div>
             <div>Price: ₪{product.price}</div>
@@ -74,9 +77,9 @@ const AdminComponent = () => {
                 src={MY_SERVER + "/" + product.image}
                 alt={product.title}
                 height="100px"
-                style={{ marginBottom: "150px" }}
               />
             </div>
+            <button onClick={() => handleDelete(product.id)}>Delete</button>
           </li>
         ))}
       </ul>

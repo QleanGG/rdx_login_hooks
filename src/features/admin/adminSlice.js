@@ -1,23 +1,24 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { addProduct } from "./adminAPI";
+import { addProduct,delProduct } from "./adminAPI";
+import { loadProdsAsync } from "../products/productsSlicer";
+
+
 
 export const addProductAsync = createAsyncThunk(
   "admin/addProduct",
-  async (productData) => {
-    console.log(' in the slicer');
+  async (productData,{dispatch}) => {
     const response = await addProduct(productData);
     return response.data;
   }
 );
 
-//   export const deleteProduct = createAsyncThunk(
-//     "admin/deleteProduct",
-//     async (productId) => {
-//       // Implement your Django API call to delete a product
-//       const response = await axios.delete(`http://your-django-api-endpoint/products/${productId}/`);
-//       return { id: productId };
-//     }
-//   );
+  export const delProductAsync = createAsyncThunk(
+    "admin/deleteProduct",
+    async (productId,{dispatch}) => {
+      const response = await delProduct(productId);
+      return response.data;
+    }
+  );
 
 const initialState = {
   products: [],
@@ -36,26 +37,27 @@ const adminSlice = createSlice({
         state.error = null;
       })
       .addCase(addProductAsync.fulfilled, (state) => {
+        loadProdsAsync();
         state.loading = false;
       })
       .addCase(addProductAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(delProductAsync.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(delProductAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = state.products.filter(
+          (product) => product.id !== action.payload.id
+        );
+      })
+      .addCase(delProductAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
-    //   .addCase(deleteProduct.pending, (state, action) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(deleteProduct.fulfilled, (state, action) => {
-    //     state.loading = false;
-    //     state.products = state.products.filter(
-    //       (product) => product.id !== action.payload.id
-    //     );
-    //   })
-    //   .addCase(deleteProduct.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message;
-    //   });
   },
 });
 
